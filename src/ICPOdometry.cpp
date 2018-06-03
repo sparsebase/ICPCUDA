@@ -14,42 +14,42 @@ ICPOdometry::ICPOdometry(int width,
                           float angleThresh)
 : lastError(0),
   lastInliers(width * height),
-  dist_thresh(distThresh),
-  angle_thresh(angleThresh),
-  width(width),
-  height(height),
-  cx(cx), cy(cy), fx(fx), fy(fy)
+  dist_thresh_(distThresh),
+  angle_thresh_(angleThresh),
+  width_(width),
+  height_(height),
+  cx_(cx), cy_(cy), fx_(fx), fy_(fy)
 {
-    sumData.create(MAX_THREADS);
-    outData.create(1);
+    sumData_.create(MAX_THREADS);
+    outData_.create(1);
 
     intr.cx = cx;
     intr.cy = cy;
     intr.fx = fx;
     intr.fy = fy;
 
-    iterations.reserve(NUM_PYRS);
+    iterations_.reserve(NUM_PYRS);
 
-    depth_tmp.resize(NUM_PYRS);
+    depth_tmp_.resize(NUM_PYRS);
 
-    vmaps_prev.resize(NUM_PYRS);
-    nmaps_prev.resize(NUM_PYRS);
+    vmaps_prev_.resize(NUM_PYRS);
+    nmaps_prev_.resize(NUM_PYRS);
 
-    vmaps_curr.resize(NUM_PYRS);
-    nmaps_curr.resize(NUM_PYRS);
+    vmaps_curr_.resize(NUM_PYRS);
+    nmaps_curr_.resize(NUM_PYRS);
 
     for (int i = 0; i < NUM_PYRS; ++i)
     {
         int pyr_rows = height >> i;
         int pyr_cols = width >> i;
 
-        depth_tmp[i].create(pyr_rows, pyr_cols);
+        depth_tmp_[i].create(pyr_rows, pyr_cols);
 
-        vmaps_prev[i].create(pyr_rows*3, pyr_cols);
-        nmaps_prev[i].create(pyr_rows*3, pyr_cols);
+        vmaps_prev_[i].create(pyr_rows*3, pyr_cols);
+        nmaps_prev_[i].create(pyr_rows*3, pyr_cols);
 
-        vmaps_curr[i].create(pyr_rows*3, pyr_cols);
-        nmaps_curr[i].create(pyr_rows*3, pyr_cols);
+        vmaps_curr_[i].create(pyr_rows*3, pyr_cols);
+        nmaps_curr_[i].create(pyr_rows*3, pyr_cols);
     }
 }
 
@@ -60,17 +60,17 @@ ICPOdometry::~ICPOdometry()
 
 void ICPOdometry::initICP(unsigned short * depth, const float depthCutoff)
 {
-    depth_tmp[0].upload(depth, sizeof(unsigned short) * width, height, width);
+    depth_tmp_[0].upload(depth, sizeof(unsigned short) * width_, height_, width_);
 
     for(int i = 1; i < NUM_PYRS; ++i)
     {
-        pyrDown(depth_tmp[i - 1], depth_tmp[i]);
+        pyrDown(depth_tmp_[i - 1], depth_tmp_[i]);
     }
 
     for(int i = 0; i < NUM_PYRS; ++i)
     {
-        createVMap(intr(i), depth_tmp[i], vmaps_curr[i], depthCutoff);
-        createNMap(vmaps_curr[i], nmaps_curr[i]);
+        createVMap(intr(i), depth_tmp_[i], vmaps_curr_[i], depthCutoff);
+        createNMap(vmaps_curr_[i], nmaps_curr_[i]);
     }
 
     cudaDeviceSynchronize();
@@ -78,17 +78,17 @@ void ICPOdometry::initICP(unsigned short * depth, const float depthCutoff)
 
 void ICPOdometry::initICPModel(unsigned short * depth, const float depthCutoff)
 {
-    depth_tmp[0].upload(depth, sizeof(unsigned short) * width, height, width);
+    depth_tmp_[0].upload(depth, sizeof(unsigned short) * width_, height_, width_);
 
     for(int i = 1; i < NUM_PYRS; ++i)
     {
-        pyrDown(depth_tmp[i - 1], depth_tmp[i]);
+        pyrDown(depth_tmp_[i - 1], depth_tmp_[i]);
     }
 
     for(int i = 0; i < NUM_PYRS; ++i)
     {
-        createVMap(intr(i), depth_tmp[i], vmaps_prev[i], depthCutoff);
-        createNMap(vmaps_prev[i], nmaps_prev[i]);
+        createVMap(intr(i), depth_tmp_[i], vmaps_prev_[i], depthCutoff);
+        createNMap(vmaps_prev_[i], nmaps_prev_[i]);
     }
 
     cudaDeviceSynchronize();
@@ -96,13 +96,13 @@ void ICPOdometry::initICPModel(unsigned short * depth, const float depthCutoff)
 
 void ICPOdometry::getIncrementalTransformation(Sophus::SE3d & T_prev_curr, int threads, int blocks)
 {
-    iterations[0] = 10;
-    iterations[1] = 5;
-    iterations[2] = 4;
+    iterations_[0] = 10;
+    iterations_[1] = 5;
+    iterations_[2] = 4;
 
     for(int i = NUM_PYRS - 1; i >= 0; i--)
     {
-        for(int j = 0; j < iterations[i]; j++)
+        for(int j = 0; j < iterations_[i]; j++)
         {
             float residual_inliers[2];
             Eigen::Matrix<float, 6, 6, Eigen::RowMajor> A_icp;
@@ -110,15 +110,15 @@ void ICPOdometry::getIncrementalTransformation(Sophus::SE3d & T_prev_curr, int t
 
             estimateStep(T_prev_curr.rotationMatrix().cast<float>().eval(),
                          T_prev_curr.translation().cast<float>().eval(),
-                         vmaps_curr[i],
-                         nmaps_curr[i],
+                         vmaps_curr_[i],
+                         nmaps_curr_[i],
                          intr(i),
-                         vmaps_prev[i],
-                         nmaps_prev[i],
-                         dist_thresh,
-                         angle_thresh,
-                         sumData,
-                         outData,
+                         vmaps_prev_[i],
+                         nmaps_prev_[i],
+                         dist_thresh_,
+                         angle_thresh_,
+                         sumData_,
+                         outData_,
                          A_icp.data(),
                          b_icp.data(),
                          &residual_inliers[0],

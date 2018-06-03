@@ -38,29 +38,29 @@ class ICPOdometry
         float lastInliers;
 
     private:
-        std::vector<DeviceArray2D<unsigned short>> depth_tmp;
+        std::vector<DeviceArray2D<unsigned short>> depth_tmp_;
 
-        std::vector<DeviceArray2D<float>> vmaps_prev;
-        std::vector<DeviceArray2D<float>> nmaps_prev;
+        std::vector<DeviceArray2D<float>> vmaps_prev_;
+        std::vector<DeviceArray2D<float>> nmaps_prev_;
 
-        std::vector<DeviceArray2D<float>> vmaps_curr;
-        std::vector<DeviceArray2D<float>> nmaps_curr;
+        std::vector<DeviceArray2D<float>> vmaps_curr_;
+        std::vector<DeviceArray2D<float>> nmaps_curr_;
 
         Intr intr;
 
-        DeviceArray<Eigen::Matrix<float,29,1,Eigen::DontAlign>> sumData;
-        DeviceArray<Eigen::Matrix<float,29,1,Eigen::DontAlign>> outData;
+        DeviceArray<Eigen::Matrix<float,29,1,Eigen::DontAlign>> sumData_;
+        DeviceArray<Eigen::Matrix<float,29,1,Eigen::DontAlign>> outData_;
 
         static const int NUM_PYRS = 3;
 
-        std::vector<int> iterations;
+        std::vector<int> iterations_;
 
-        float dist_thresh;
-        float angle_thresh;
+        float dist_thresh_;
+        float angle_thresh_;
 
-        const int width;
-        const int height;
-        const float cx, cy, fx, fy;
+        int width_;
+        int height_;
+        float cx_, cy_, fx_, fy_;
 };
 
 #endif /* ICPODOMETRY_H_ */

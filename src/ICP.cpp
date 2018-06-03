@@ -43,7 +43,7 @@ uint64_t loadDepth(pangolin::Image<unsigned short> & depth)
 
     pangolin::TypedImage depthRaw = pangolin::LoadImage(depthLoc, pangolin::ImageFileTypePng);
 
-    pangolin::Image<unsigned short> depthRaw16((unsigned short*)depthRaw.ptr, depthRaw.w, depthRaw.h, depthRaw.w * sizeof(unsigned short));
+    pangolin::Image<unsigned short> depthRaw16(depthRaw.w, depthRaw.h, depthRaw.w * sizeof(unsigned short), (unsigned short*)depthRaw.ptr);
 
     tokenize(tokens[0], timeTokens, ".");
 
