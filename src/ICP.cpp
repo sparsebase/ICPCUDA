@@ -252,7 +252,8 @@ int main(int argc, char * argv[])
     std::cout << std::endl;
 
     std::cout << "ICP speed: " << int(1000.f / mean) << "Hz" << std::endl;
-
+	std::cout << "Press enter to continue..." << std::endl;
+	getchar();
     return 0;
 }
 

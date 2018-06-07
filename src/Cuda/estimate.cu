@@ -89,7 +89,7 @@ struct Reduction
     Eigen::Matrix<float, 3, 3, Eigen::DontAlign> R_prev_curr;
     Eigen::Matrix<float, 3, 1, Eigen::DontAlign> t_prev_curr;
 
-    Intr intr;
+    CameraIntrinsic intr;
 
     PtrStep<float> vmap_curr;
     PtrStep<float> nmap_curr;
@@ -217,7 +217,7 @@ void estimateStep(const Eigen::Matrix<float,3,3,Eigen::DontAlign> & R_prev_curr,
                   const Eigen::Matrix<float,3,1,Eigen::DontAlign> & t_prev_curr,
                   const DeviceArray2D<float>& vmap_curr,
                   const DeviceArray2D<float>& nmap_curr,
-                  const Intr& intr,
+                  const CameraIntrinsic& intr,
                   const DeviceArray2D<float>& vmap_prev,
                   const DeviceArray2D<float>& nmap_prev,
                   float dist_thresh,

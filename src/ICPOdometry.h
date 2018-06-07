@@ -46,7 +46,7 @@ class ICPOdometry
         std::vector<DeviceArray2D<float>> vmaps_curr_;
         std::vector<DeviceArray2D<float>> nmaps_curr_;
 
-        Intr intr;
+        CameraIntrinsic intr;
 
         DeviceArray<Eigen::Matrix<float,29,1,Eigen::DontAlign>> sumData_;
         DeviceArray<Eigen::Matrix<float,29,1,Eigen::DontAlign>> outData_;

@@ -28,7 +28,7 @@ ICPOdometry::ICPOdometry(int width,
     intr.fx = fx;
     intr.fy = fy;
 
-    iterations_.reserve(NUM_PYRS);
+    iterations_.resize(NUM_PYRS);
 
     depth_tmp_.resize(NUM_PYRS);
 

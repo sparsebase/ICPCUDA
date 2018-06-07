@@ -40,6 +40,7 @@
 
 __global__ void pyrDownGaussKernel(const PtrStepSz<unsigned short> src, PtrStepSz<unsigned short> dst, float sigma_color)
 {
+	//Pyramid down sampling with a 5 diameter gaussian kernel
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -116,7 +117,7 @@ __global__ void computeVmapKernel(const PtrStepSz<unsigned short> depth, PtrStep
     }
 }
 
-void createVMap(const Intr& intr, const DeviceArray2D<unsigned short> & depth, DeviceArray2D<float> & vmap, const float depthCutoff)
+void createVMap(const CameraIntrinsic& intr, const DeviceArray2D<unsigned short> & depth, DeviceArray2D<float> & vmap, const float depthCutoff)
 {
     vmap.create(depth.rows() * 3, depth.cols());
 
