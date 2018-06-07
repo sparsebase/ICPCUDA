@@ -4,7 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <pangolin/image/image_io.h>
-
+#include <memory>
 std::ifstream asFile;
 std::string directory;
 
@@ -57,7 +57,7 @@ uint64_t loadDepth(pangolin::Image<unsigned short> & depth)
     {
         for(unsigned int j = 0; j < 640; j++)
         {
-            depth.RowPtr(i)[j] = depthRaw16(j, i)  / 5;
+            depth.RowPtr(i)[j] = depthRaw16.RowPtr(i)[j]  / 5;
         }
     }
 
@@ -108,11 +108,17 @@ int main(int argc, char * argv[])
 
     asFile.open(associationFile.c_str());
 
-    pangolin::ManagedImage<unsigned short> firstData(640, 480);
-    pangolin::ManagedImage<unsigned short> secondData(640, 480);
+	const int imWidth = 640;
+	const int imHeight = 480;
 
-    pangolin::Image<unsigned short> firstRaw(firstData.w, firstData.h, firstData.pitch, (unsigned short*)firstData.ptr);
-    pangolin::Image<unsigned short> secondRaw(secondData.w, secondData.h, secondData.pitch, (unsigned short*)secondData.ptr);
+//     pangolin::ManagedImage<unsigned short> firstData(640, 480);
+//     pangolin::ManagedImage<unsigned short> secondData(640, 480);
+
+	std::shared_ptr<unsigned short> firstData(new unsigned short[imHeight * imWidth]);
+	std::shared_ptr<unsigned short> secondData(new unsigned short[imHeight * imWidth]);
+
+    pangolin::Image<unsigned short> firstRaw(imWidth, imHeight, imWidth, firstData.get());
+    pangolin::Image<unsigned short> secondRaw(imWidth, imHeight, imWidth, secondData.get());
 
     ICPOdometry icpOdom(640, 480, 319.5, 239.5, 528, 528);
 
