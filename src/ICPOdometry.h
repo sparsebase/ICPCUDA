@@ -7,6 +7,7 @@
 
 #ifndef ICPODOMETRY_H_
 #define ICPODOMETRY_H_
+#define _USE_MATH_DEFINES
 
 #include "Cuda/internal.h"
 

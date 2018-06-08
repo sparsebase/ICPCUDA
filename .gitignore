@@ -2,3 +2,6 @@ build/
 .project
 .idea
 *.user
+build
+.vs
+vs-build
